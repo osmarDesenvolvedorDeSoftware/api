@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from datetime import datetime
 from werkzeug.utils import secure_filename
 
@@ -36,6 +36,31 @@ def upload():
         salvos.append(nome_arquivo)
 
     return jsonify({"status": "sucesso", "arquivos_salvos": salvos})
+
+
+# NOVOS ENDPOINTS
+
+@app.route("/fotos")
+def listar_pedidos():
+    try:
+        pedidos = os.listdir(app.config['UPLOAD_FOLDER'])
+        return jsonify({"pedidos": pedidos})
+    except Exception as e:
+        return jsonify({"erro": str(e)}), 500
+
+@app.route("/fotos/<pedido_id>")
+def listar_fotos_pedido(pedido_id):
+    caminho = os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(pedido_id))
+    if not os.path.exists(caminho):
+        return jsonify({"fotos": []})
+    fotos = os.listdir(caminho)
+    return jsonify({"fotos": fotos})
+
+@app.route("/fotos/<pedido_id>/<filename>")
+def ver_foto(pedido_id, filename):
+    caminho = os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(pedido_id))
+    return send_from_directory(caminho, filename)
+
 
 if __name__ == "__main__":
     app.run(debug=True)
