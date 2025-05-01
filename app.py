@@ -5,7 +5,9 @@ from werkzeug.utils import secure_filename
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)
+
+# CORS corrigido para aceitar Authorization e preflight OPTIONS
+CORS(app, supports_credentials=True, origins="*", methods=["GET", "POST", "OPTIONS"], allow_headers=["Authorization", "Content-Type"])
 
 # Token secreto
 API_TOKEN = "Zy9*35r#FqM2!bXv6LgWq@T0dKe8^Azp"
