@@ -8,7 +8,7 @@ app = Flask(__name__)
 CORS(app)
 
 # Token secreto
-API_TOKEN = "e50604"hx[b9Mys/ofgc"
+API_TOKEN = "Zy9*35r#FqM2!bXv6LgWq@T0dKe8^Azp"
 
 def verificar_token():
     token = request.headers.get("Authorization", "")
