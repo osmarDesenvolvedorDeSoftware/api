@@ -2,10 +2,17 @@ import os
 from flask import Flask, request, jsonify, send_from_directory
 from datetime import datetime
 from werkzeug.utils import secure_filename
-from flask_cors import CORS  # ✅ Import necessário para permitir CORS
+from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)  # ✅ Ativa CORS para todas as rotas da API
+CORS(app)
+
+# Token secreto
+API_TOKEN = "meu_token_seguro"  # você pode trocar por algo mais difícil
+
+def verificar_token():
+    token = request.headers.get("Authorization", "")
+    return token == f"Bearer {API_TOKEN}"
 
 # Pasta onde as imagens serão salvas
 UPLOAD_FOLDER = 'fotos'
@@ -18,6 +25,9 @@ def index():
 
 @app.route("/upload", methods=["POST"])
 def upload():
+    if not verificar_token():
+        return jsonify({"erro": "Não autorizado"}), 401
+
     pedido_id = request.form.get("pedido_id")
     if not pedido_id:
         return jsonify({"erro": "pedido_id obrigatório"}), 400
@@ -39,11 +49,10 @@ def upload():
 
     return jsonify({"status": "sucesso", "arquivos_salvos": salvos})
 
-
-# NOVOS ENDPOINTS
-
 @app.route("/fotos")
 def listar_pedidos():
+    if not verificar_token():
+        return jsonify({"erro": "Não autorizado"}), 401
     try:
         pedidos = os.listdir(app.config['UPLOAD_FOLDER'])
         return jsonify({"pedidos": pedidos})
@@ -52,6 +61,8 @@ def listar_pedidos():
 
 @app.route("/fotos/<pedido_id>")
 def listar_fotos_pedido(pedido_id):
+    if not verificar_token():
+        return jsonify({"erro": "Não autorizado"}), 401
     caminho = os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(pedido_id))
     if not os.path.exists(caminho):
         return jsonify({"fotos": []})
@@ -60,9 +71,10 @@ def listar_fotos_pedido(pedido_id):
 
 @app.route("/fotos/<pedido_id>/<filename>")
 def ver_foto(pedido_id, filename):
+    if not verificar_token():
+        return jsonify({"erro": "Não autorizado"}), 401
     caminho = os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(pedido_id))
     return send_from_directory(caminho, filename)
-
 
 if __name__ == "__main__":
     app.run(debug=True)
