@@ -2,8 +2,10 @@ import os
 from flask import Flask, request, jsonify, send_from_directory
 from datetime import datetime
 from werkzeug.utils import secure_filename
+from flask_cors import CORS  # ✅ Import necessário para permitir CORS
 
 app = Flask(__name__)
+CORS(app)  # ✅ Ativa CORS para todas as rotas da API
 
 # Pasta onde as imagens serão salvas
 UPLOAD_FOLDER = 'fotos'
